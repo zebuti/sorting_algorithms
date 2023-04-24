@@ -1,72 +1,70 @@
 #include "sort.h"
 /**
-*swap - the positions of two elements into an array
-*@array: array
-*@item1: array element
-*@item2: array element
+* partition - quicksort using Hoare version
+* @array: array to sort
+* @min: lowest index
+* @max: highest index
+* @size: size of the array
+*
+* Return: partition index
 */
-void swap(int *array, ssize_t item1, ssize_t item2)
+size_t partition(int *array, ssize_t min, ssize_t max, size_t size)
 {
-	int tmp;
+	int swap, pivot;
 
-	tmp = array[item1];
-	array[item1] = array[item2];
-	array[item2] = tmp;
-}
-/**
- *hoare_partition - hoare partition sorting scheme implementation
- *@array: array
- *@first: first array element
- *@last: last array element
- *@size: size array
- *Return: return the position of the last element sorted
- */
-int hoare_partition(int *array, int first, int last, int size)
-{
-	int current = first - 1, finder = last + 1;
-	int pivot = array[last];
-
-	while (1)
+	pivot = array[max];
+	while (min <= max)
 	{
+		while (array[min] < pivot)
+			min++;
+		while (array[max] > pivot)
+			max--;
+		if (min <= max)
+		{
+			if (min != max)
+			{
+				swap = array[min];
+				array[min] = array[max];
+				array[max] = swap;
+				print_array(array, size);
+			}
+			min++;
+			max--;
+		}
+	}
+	return (max);
+}
 
-		do {
-			current++;
-		} while (array[current] < pivot);
-		do {
-			finder--;
-		} while (array[finder] > pivot);
-		if (current >= finder)
-			return (current);
-		swap(array, current, finder);
-		print_array(array, size);
+/**
+* quicksort - sorts a partition of an array of integers
+* @array: array to sort
+* @min: lowest index of the partition to sort
+* @max: highest index of the partition to sort
+* @size: size of the array
+*
+* Return: void
+*/
+void quicksort(int *array, ssize_t min, ssize_t max, size_t size)
+{
+	ssize_t pivot;
+
+	if (min < max)
+	{
+		pivot = partition(array, min, max, size);
+		quicksort(array, min, pivot, size);
+		quicksort(array, pivot + 1, max, size);
+
 	}
 }
-/**
- *qs - qucksort algorithm implementation
- *@array: array
- *@first: first array element
- *@last: last array element
- *@size: array size
- */
-void qs(int *array, ssize_t first, ssize_t last, int size)
-{
-	ssize_t position = 0;
 
-	if (first < last)
-	{
-		position = hoare_partition(array, first, last, size);
-		qs(array, first, position - 1, size);
-		qs(array, position, last, size);
-	}
-}
 /**
- *quick_sort_hoare - prepare the terrain to quicksort algorithm
- *@array: array
- *@size: array size
- */
+* quick_sort_hoare - sorts an array of integer with quick sort
+* @array: The array to sort
+* @size: The size of the array
+*/
 void quick_sort_hoare(int *array, size_t size)
 {
-	if (!array || size < 2)
+	if (array == NULL || size < 2)
 		return;
-	qs(array, 0, size - 1, size);
+	quicksort(array, 0, size - 1, size);
 }
