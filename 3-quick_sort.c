@@ -1,110 +1,74 @@
 #include "sort.h"
-#include <stdio.h>
+
+
 /**
- *_calloc - this is a calloc function
- *@nmemb: number of elemets
- *@size: bit size of each element
- *Return: pointer to memory assignement
+ * partition - sort an array of integers using quick_sort
+ *		lomuto implementation with pivot in last element of partition
+ * @array: array to sort
+ * @min: minimum value
+ * @max: max value
+ * @size: the size of the array to sort
+ * Return: index + 1
  */
-void *_calloc(unsigned int nmemb, unsigned int size)
+size_t partition(int *array, ssize_t min, ssize_t max, size_t size)
 {
-	unsigned int i = 0;
-	char *p;
+	ssize_t i, j;
+	int swap, pivot;
 
-	if (nmemb == 0 || size == 0)
-		return ('\0');
-	p = malloc(nmemb * size);
-	if (p == '\0')
-		return ('\0');
-	for (i = 0; i < (nmemb * size); i++)
-		p[i] = '\0';
-	return (p);
-}
-/**
- *merge - make a merge
- *@arr: one from start to mid
- *@tmp: temp array used in merge, was created outside to
- *optimize reducing the system calls
- *@start: first element position
- *@mid: array middle
- *@end: last element position
- **/
-void merge(int *arr, int *tmp, int start, int mid, int end)
-{
-	/*  sizes and temp arrays */
-	int size_left = mid - start + 1, size_right = end - mid;
-	int *array_left, *array_right;
-	/* counters */
-	int left, right, i = 0;
-
-	array_left = &tmp[0];
-	array_right = &tmp[size_right];
-	for (left = 0; left < size_left; left++)
-		array_left[left] = arr[start + left];
-	for (right = 0; right < size_right; right++)
-		array_right[right] = arr[mid + 1 + right];
-	left = 0, right = 0, i = start;
-	/* merging tmp arrays into main array*/
-	while (left < size_left && right < size_right)
+	pivot = array[max];
+	i = min - 1;
+	for (j = min; j < max; j++)
 	{
-		if (array_left[left] <= array_right[right])
-			arr[i] = array_left[left], left++;
-		else
-			arr[i] = array_right[right], right++;
-		i++;
+		if (array[j] < pivot)
+		{
+			i++;
+			if (i != j)
+			{
+				swap = array[i];
+				array[i] = array[j];
+				array[j] = swap;
+				print_array(array, size);
+			}
+		}
 	}
-	/* merging remaining left array into main array*/
-	while (left < size_left)
-		arr[i] = array_left[left], left++, i++;
-	/* merging remaining right array into main array*/
-	while (right < size_right)
-		arr[i] = array_right[right], right++, i++;
-	printf("Merging...\n");
-	printf("[left]: ");
-	print_array(array_left, left);
-	printf("[right]: ");
-	print_array(array_right, right);
-	printf("[Done]: ");
-	print_array(&arr[start], left + right);
-}
-/**
- *mergesort - function that sorts an array of integers
- *in ascending order using the Merge sort algorithm
- *@array: array of integers
- *@tmp: temp array used in merge, was created outside to
- *optimize reducing the system calls
- *@start: fisrt element position
- *@end: last element position
- *Return: void
- */
-void mergesort(int *array, int *tmp, int start, int end)
-{
-	int mid;
-
-	mid = (start + end) / 2;
-	if ((start + end) % 2 == 0)
-		mid--;
-	if (mid >= start)
+	if (array[max] < array[i + 1])
 	{
-		mergesort(array, tmp, start, mid);
-		mergesort(array, tmp, mid + 1, end);
-		merge(array, tmp, start, mid, end);
+		swap = array[i + 1];
+		array[i + 1] = array[max];
+		array[max] = swap;
+		print_array(array, size);
+	}
+	return (i + 1);
+}
+
+/**
+* quicksort - sorts an array (a partition recursively)
+* @array: array to be sorted
+* @min: min index of the partition
+* @max: max index of the partition
+* @size: array size
+*/
+void quicksort(int *array, ssize_t min, ssize_t max, size_t size)
+{
+	ssize_t pivot;
+
+	if (min < max)
+	{
+		pivot = partition(array, min, max, size);
+		quicksort(array, min, pivot - 1, size);
+		quicksort(array, pivot + 1, max, size);
+
 	}
 }
-/**
- *merge_sort - function that sorts an array of integers
- *in ascending order using the Merge sort algorithm
- *@size: size of the list
- *@array: array of integers
- *Return: void
- */
-void merge_sort(int *array, size_t size)
-{
-	int *tmp;
 
-	if (!array || size < 2)
+/**
+* quick_sort - sorts an array with quick sort algo
+* @array: The array to be sorted
+* @size: The size of the array to be sorted
+*/
+void quick_sort(int *array, size_t size)
+{
+	if (array == NULL || size < 2)
 		return;
-	tmp = _calloc(size, sizeof(int));
-	mergesort(array, tmp, 0, size - 1);
-	free(tmp);
+	quicksort(array, 0, size - 1, size);
 }
